@@ -1,3 +1,5 @@
+![MLX90614 IR sensor on breadboard](asserts/images/sensor.jpg)
+
 # pic-ir-thermometer
 
 (Under construction.)
