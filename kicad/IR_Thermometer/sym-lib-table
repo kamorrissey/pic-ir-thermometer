@@ -1,0 +1,7 @@
+(sym_lib_table
+  (lib (name PIC16LF19156-I_SP)(type Legacy)(uri D:/Users/kamor/Downloads/LIB_PIC16LF19156-I_SP/PIC16LF19156-I_SP/KiCad/PIC16LF19156-I_SP.lib)(options "")(descr MCU))
+  (lib (name 1747)(type Legacy)(uri D:/Users/kamor/Downloads/LIB_1747/1747/KiCad/1747.lib)(options "")(descr "Melexis 90614 3V IR Sensor"))
+  (lib (name LCD-S401M16KR)(type Legacy)(uri D:/Users/kamor/Downloads/LCD-S401M16KR/LCD-S401M16KR.lib)(options "")(descr ""))
+  (lib (name NC_Thermometer-rescue)(type Legacy)(uri ${KIPRJMOD}/NC_Thermometer-rescue.lib)(options "")(descr ""))
+  (lib (name IR_Thermometer-rescue)(type Legacy)(uri ${KIPRJMOD}/IR_Thermometer-rescue.lib)(options "")(descr ""))
+)

@@ -1,0 +1,6 @@
+(fp_lib_table
+  (lib (name NC_Thermometer)(type KiCad)(uri C:/Users/kamor/Documents/Thermometer/NC_Thermometer)(options "")(descr ""))
+  (lib (name PIC16LF19156-I_SP)(type Legacy)(uri D:/Users/kamor/Downloads/LIB_PIC16LF19156-I_SP/PIC16LF19156-I_SP/KiCad/PIC16LF19156-I_SP.mod)(options "")(descr ""))
+  (lib (name 1747)(type Legacy)(uri D:/Users/kamor/Downloads/LIB_1747/1747/KiCad/1747.mod)(options "")(descr ""))
+  (lib (name LCD-S401M16KR)(type KiCad)(uri D:/Users/kamor/Downloads/LCD-S401M16KR)(options "")(descr ""))
+)
