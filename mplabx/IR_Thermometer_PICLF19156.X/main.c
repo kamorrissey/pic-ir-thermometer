@@ -55,35 +55,44 @@ typedef enum temp_mode {
     CELSIUS,
 } TEMP_MODE;
 
+
+typedef struct dataee_block {
+    uint8_t temp_mode;
+} DATAEE_BLOCK;
+
 typedef struct app_state {
-    TEMP_MODE temp_mode;
+    DATAEE_BLOCK dataee_block;
     uint8_t temp_exists;
     float temp_C;
-    int16_t ticks_remaining;
+    volatile int16_t ticks_remaining;
     SM_STATE next_sm_state;
 } APP_STATE;
+
+const uint16_t DATAEE_BLOCK_BASE = 0xF000;
 
 APP_STATE g_app_state;
 
 // forward references
-void App_Initialize( APP_STATE* app_state );
-void App_GotoState( APP_STATE* app_state, SM_STATE );
-void App_TimerClick(void);
-void App_DisplayTemp( APP_STATE* app_state );
-void App_RunST1( APP_STATE* app_state );
-void App_RunST2( APP_STATE* app_state );
-void App_RunST3( APP_STATE* app_state );
-void App_RunST4( APP_STATE* app_state );
-void App_RunST5( APP_STATE* app_state );
-void App_RunST6( APP_STATE* app_state );
-void App_RunST7( APP_STATE* app_state );
-void App_RunST8( APP_STATE* app_state );
-void App_RunST9( APP_STATE* app_state );
-void App_RunST10( APP_STATE* app_state );
-void App_RunST11( APP_STATE* app_state );
+void App_Initialize(void);
+void App_GotoState( SM_STATE new_state );
+void App_OnTimerClick(void);
+void App_DisplayTemp(void);
+void App_RunST1(void);
+void App_RunST2(void);
+void App_RunST3(void);
+void App_RunST4(void);
+void App_RunST5(void);
+void App_RunST6(void);
+void App_RunST7(void);
+void App_RunST8(void);
+void App_RunST9(void);
+void App_RunST10(void);
+void App_RunST11(void);
 
 float Get_SupplyVoltage(void);
 float Get_Temperature(void);
+void DataEE_Load( DATAEE_BLOCK* buffer );
+void DataEE_Store( DATAEE_BLOCK* buffer );
 
 /*
                          Main application
@@ -108,8 +117,8 @@ void main(void)
     // Disable the Peripheral Interrupts
     //INTERRUPT_PeripheralInterruptDisable();
         
-    App_Initialize( &g_app_state );
-    TMR0_SetInterruptHandler( &App_TimerClick );
+    App_Initialize();
+    TMR0_SetInterruptHandler( App_OnTimerClick );
     
     while (1)
     {
@@ -117,37 +126,37 @@ void main(void)
         {
         default:
         case ST1:
-            App_RunST1( &g_app_state );
+            App_RunST1();
             break;
         case ST2:
-            App_RunST2( &g_app_state );
+            App_RunST2();
             break;
         case ST3:
-            App_RunST3( &g_app_state );
+            App_RunST3();
             break;
         case ST4:
-            App_RunST4( &g_app_state );
+            App_RunST4();
             break;
         case ST5:
-            App_RunST5( &g_app_state );
+            App_RunST5();
             break;
         case ST6:
-            App_RunST6( &g_app_state );
+            App_RunST6();
             break;
         case ST7:
-            App_RunST7( &g_app_state );
+            App_RunST7();
             break;
         case ST8:
-            App_RunST8( &g_app_state );
+            App_RunST8();
             break;
         case ST9:
-            App_RunST9( &g_app_state );
+            App_RunST9();
             break;
         case ST10:
-            App_RunST10( &g_app_state );
+            App_RunST10();
             break;
         case ST11:
-            App_RunST11( &g_app_state );
+            App_RunST11();
             break;
        }
     }
@@ -173,24 +182,22 @@ float Get_Temperature(void)
     return temp[count++];
 }
 
-void App_Initialize( APP_STATE* app_state )
+void App_Initialize(void)
 {
-    App_GotoState( app_state, ST1 );
-    // TODO: get temp mode from EEPROM
-    app_state->temp_mode = FAHRENHEIT;
-    app_state->temp_exists = 0;
-    app_state->temp_C = 0.0f;
+    App_GotoState( ST1 );
+    DataEE_Load(&g_app_state.dataee_block);
+    g_app_state.temp_exists = 0;
+    g_app_state.temp_C = 0.0f;
 }
 
-void App_GotoState( APP_STATE* app_state, SM_STATE sm_state )
+void App_GotoState( SM_STATE sm_state )
 {
-    LED_SetLow();
     TMR0_StopTimer();
-    app_state->next_sm_state = sm_state;
-    app_state->ticks_remaining = 0;
+    g_app_state.next_sm_state = sm_state;
+    g_app_state.ticks_remaining = 0;
 }
 
-void App_TimerClick(void)
+void App_OnTimerClick(void)
 {
     if ( g_app_state.ticks_remaining > 0 )
     {
@@ -198,68 +205,66 @@ void App_TimerClick(void)
     }
 }
 
-void App_DisplayTemp( APP_STATE* app_state )
+void App_DisplayTemp(void)
 {
-    if ( !app_state->temp_exists )
+    if ( !g_app_state.temp_exists )
     {
         DISPLAY_Ready();
     }
     else
     {
         int16_t temp;
-        if ( app_state->temp_mode == FAHRENHEIT )
+        if ( g_app_state.dataee_block.temp_mode == FAHRENHEIT )
         {
-            temp = (int16_t)(10 * ( app_state->temp_C * 9 / 5 + 32 ) + 0.5);
+            temp = (int16_t)(10 * ( g_app_state.temp_C * 9 / 5 + 32 ) + 0.5);
         }
         else
         {
-            temp = (int16_t)(10 * app_state->temp_C + 0.5);
+            temp = (int16_t)(10 * g_app_state.temp_C + 0.5);
         }
         DISPLAY_ShowNumber( temp, 1 );
     }
 }
 
-void App_RunST1( APP_STATE* app_state )
+void App_RunST1(void)
 {
     // Display temperature or ready-indicator
     LCD_Enable();
-    App_DisplayTemp( app_state );
-    App_GotoState( app_state, ST2 );
+    App_DisplayTemp();
+    App_GotoState( ST2 );
 }
 
-void App_RunST2( APP_STATE* app_state )
+void App_RunST2(void)
 {
     // Wait for all buttons released
-    LED_SetHigh();
     while ( CLC1_OutputStatusGet() || CLC2_OutputStatusGet() )
     {
         SLEEP();
     }
-    App_GotoState( app_state, ST3 );
+    App_GotoState( ST3 );
 }
 
-void App_RunST3( APP_STATE* app_state )
+void App_RunST3(void)
 {
     // Wait for button press or timeout
-    LED_SetHigh();
-    app_state->ticks_remaining = 300; // 30 secs
+    g_app_state.ticks_remaining = 300; // 30 secs * 10 ticks/sec
     TMR0_Reload();
     TMR0_StartTimer();
     while (1)
     {
         if ( CLC1_OutputStatusGet() )
         {
-            App_GotoState( app_state, ST4 );
+            App_GotoState( ST4 );
             return;
         }
         else if ( CLC2_OutputStatusGet() )
         {
-            App_GotoState( app_state, ST8 );
+            App_GotoState( ST8 );
             return;
         }
-        else if ( app_state->ticks_remaining == 0 )
+        else if ( g_app_state.ticks_remaining == 0 )
         {
-            App_GotoState( app_state, ST7 );
+            App_GotoState( ST7 );
             return;
         }
         else
@@ -269,52 +274,52 @@ void App_RunST3( APP_STATE* app_state )
     }
 }
 
-void App_RunST4( APP_STATE* app_state )
+void App_RunST4(void)
 {
     // Measure Vdd, compare to threshold
     float vdd = Get_SupplyVoltage();
     if ( vdd < 2.65 )
     {
-        App_GotoState( app_state, ST6 );
+        App_GotoState( ST6 );
     }
     else
     {
-        App_GotoState( app_state, ST5 );
+        App_GotoState( ST5 );
     }
 }
 
-void App_RunST5( APP_STATE* app_state )
+void App_RunST5(void)
 {
     // Capture temperature
-    app_state->temp_C = Get_Temperature();
-    app_state->temp_exists = 1;
-    App_GotoState( app_state, ST1 );
+    g_app_state.temp_C = Get_Temperature();
+    g_app_state.temp_exists = 1;
+    App_GotoState( ST1 );
 }
 
-void App_RunST6( APP_STATE* app_state )
+void App_RunST6(void)
 {
     // Display low battery
     LCD_Enable();
     DISPLAY_BatteryLow();
-    App_GotoState( app_state, ST2 );
+    App_GotoState( ST2 );
 }
 
-void App_RunST7( APP_STATE* app_state )
+void App_RunST7(void)
 {
     // Clear display
     DISPLAY_AllPixels_Off();
     LCD_Disable();
-    App_GotoState( app_state, ST3 );
+    App_GotoState( ST3 );
 }
 
-void App_RunST8( APP_STATE* app_state )
+void App_RunST8(void)
 {
     // Display units
     LCD_Enable();
     DISPLAY_DIG1_Segments( DISPLAY_CharToSegments(' '));
     DISPLAY_DIG2_Segments( DISPLAY_CharToSegments(' '));
     DISPLAY_DIG3_Segments( DISPLAY_CharToSegments(' '));
-    if ( app_state->temp_mode == FAHRENHEIT )
+    if ( g_app_state.dataee_block.temp_mode == FAHRENHEIT )
     {
         DISPLAY_DIG4_Segments( DISPLAY_CharToSegments('F'));
     }
@@ -326,31 +331,30 @@ void App_RunST8( APP_STATE* app_state )
     DISPLAY_DP2_Off();
     DISPLAY_DP3_Off();
     DISPLAY_COLON_Off();
-    App_GotoState( app_state, ST11 );
+    App_GotoState( ST11 );
 }
 
-void App_RunST9( APP_STATE* app_state )
+void App_RunST9(void)
 {
     // Wait for button press or timeout
-    LED_SetHigh();
-    app_state->ticks_remaining = 50; // 5 secs
+    g_app_state.ticks_remaining = 50; // 5 secs
     TMR0_Reload();
     TMR0_StartTimer();
     while (1)
     {
         if ( CLC1_OutputStatusGet() )
         {
-            App_GotoState( app_state, ST1 );
+            App_GotoState( ST1 );
             return;
         }
         else if ( CLC2_OutputStatusGet() )
         {
-            App_GotoState( app_state, ST10 );
+            App_GotoState( ST10 );
             return;
         }
-        else if ( app_state->ticks_remaining == 0 )
+        else if ( g_app_state.ticks_remaining == 0 )
         {
-            App_GotoState( app_state, ST1 );
+            App_GotoState( ST1 );
             return;
         }
         else
@@ -360,30 +364,48 @@ void App_RunST9( APP_STATE* app_state )
     }
 }
 
-void App_RunST10( APP_STATE* app_state )
+void App_RunST10(void)
 {
     // Toggle units
-    if ( app_state->temp_mode == FAHRENHEIT )
+    if ( g_app_state.dataee_block.temp_mode == FAHRENHEIT )
     {
-        app_state->temp_mode = CELSIUS;
+        g_app_state.dataee_block.temp_mode = CELSIUS;
     }
     else
     {
-        app_state->temp_mode = FAHRENHEIT;
+        g_app_state.dataee_block.temp_mode = FAHRENHEIT;
     }
     // TODO: save units to EEPROM
-    App_GotoState( app_state, ST8 );
+    DataEE_Store(&g_app_state.dataee_block);
+    App_GotoState( ST8 );
 }
 
-void App_RunST11( APP_STATE* app_state )
+void App_RunST11(void)
 {
     // Wait for all buttons released
-    LED_SetHigh();
     while ( CLC1_OutputStatusGet() || CLC2_OutputStatusGet() )
     {
         SLEEP();
     }
-    App_GotoState( app_state, ST9 );
+    App_GotoState( ST9 );
+}
+
+void DataEE_Load( DATAEE_BLOCK* buffer )
+{
+    uint8_t* dest = (uint8_t*)buffer;
+    for ( uint16_t i = 0; i < sizeof(DATAEE_BLOCK); ++i )
+    {
+        *dest++ = DATAEE_ReadByte( DATAEE_BLOCK_BASE + i );
+    }
+}
+
+void DataEE_Store( DATAEE_BLOCK* buffer )
+{
+    uint8_t* src = (uint8_t*)buffer;
+    for ( uint16_t i = 0; i < sizeof(DATAEE_BLOCK); ++i )
+    {
+        DATAEE_WriteByte( DATAEE_BLOCK_BASE + i, *src++ );
+    }
 }
 
 /**

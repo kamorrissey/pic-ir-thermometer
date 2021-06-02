@@ -45,8 +45,6 @@ void DISPLAY_DIG2_Segments(unsigned char segs);
 void DISPLAY_DIG3_Segments(unsigned char segs);
 void DISPLAY_DIG4_Segments(unsigned char segs);
 
-void DISPLAY_ShowDemoTemp(void);
-
 void DISPLAY_ShowNumber(int16_t value, int16_t decimal_places);
 
 void DISPLAY_BatteryLow(void);

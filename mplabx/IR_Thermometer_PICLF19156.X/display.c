@@ -358,18 +358,6 @@ void DISPLAY_DIG4_Segments(unsigned char segs)
     }
 }
 
-void DISPLAY_ShowDemoTemp(void)
-{
-    DISPLAY_DIG1_Segments(DISPLAY_CharToSegments(' '));
-    DISPLAY_DIG2_Segments(DISPLAY_CharToSegments('9'));
-    DISPLAY_DIG3_Segments(DISPLAY_CharToSegments('8'));
-    DISPLAY_DIG4_Segments(DISPLAY_CharToSegments('6'));
-    DISPLAY_DP1_Off();
-    DISPLAY_DP2_Off();
-    DISPLAY_DP3_On();
-    DISPLAY_COLON_Off();
-}
-
 void DISPLAY_ShowNumber(int16_t value, int16_t decimal_places)
 {
     if ( value < 0 || 9999 < value )
@@ -387,7 +375,7 @@ void DISPLAY_ShowNumber(int16_t value, int16_t decimal_places)
     temp_val /= 10;
     uint8_t d2 = temp_val % 10;
     temp_val /= 10;
-    uint8_t d1 = temp_val;
+    uint8_t d1 = (uint8_t)temp_val;
     
     uint8_t can_blank = 1;
     if (d1 == 0 && decimal_places <= 2 && can_blank)
