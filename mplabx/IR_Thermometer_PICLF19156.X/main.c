@@ -231,7 +231,7 @@ void App_RunST2( APP_STATE* app_state )
 {
     // Wait for all buttons released
     LED_SetHigh();
-    while ( CLC1_OutputStatusGet() || CLC1_OutputStatusGet() )
+    while ( CLC1_OutputStatusGet() || CLC2_OutputStatusGet() )
     {
         SLEEP();
     }
@@ -379,7 +379,7 @@ void App_RunST11( APP_STATE* app_state )
 {
     // Wait for all buttons released
     LED_SetHigh();
-    while ( CLC1_OutputStatusGet() || CLC1_OutputStatusGet() )
+    while ( CLC1_OutputStatusGet() || CLC2_OutputStatusGet() )
     {
         SLEEP();
     }
