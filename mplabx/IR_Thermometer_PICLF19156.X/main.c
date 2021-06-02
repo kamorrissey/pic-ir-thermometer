@@ -47,6 +47,7 @@
 typedef enum sm_state {
     ST1, ST2, ST3, ST4, ST5,
     ST6, ST7, ST8, ST9, ST10,
+    ST11,
 } SM_STATE;
 
 typedef enum temp_mode {
@@ -79,6 +80,7 @@ void App_RunST7( APP_STATE* app_state );
 void App_RunST8( APP_STATE* app_state );
 void App_RunST9( APP_STATE* app_state );
 void App_RunST10( APP_STATE* app_state );
+void App_RunST11( APP_STATE* app_state );
 
 float Get_SupplyVoltage(void);
 float Get_Temperature(void);
@@ -144,6 +146,9 @@ void main(void)
         case ST10:
             App_RunST10( &g_app_state );
             break;
+        case ST11:
+            App_RunST11( &g_app_state );
+            break;
        }
     }
 }
@@ -204,11 +209,11 @@ void App_DisplayTemp( APP_STATE* app_state )
         int16_t temp;
         if ( app_state->temp_mode == FAHRENHEIT )
         {
-            temp = (int16_t)(10 * app_state->temp_C + 0.5);
+            temp = (int16_t)(10 * ( app_state->temp_C * 9 / 5 + 32 ) + 0.5);
         }
         else
         {
-            temp = (int16_t)(10 * app_state->temp_C * 9 / 5 + 32.0 + 0.5);
+            temp = (int16_t)(10 * app_state->temp_C + 0.5);
         }
         DISPLAY_ShowNumber( temp, 1 );
     }
@@ -311,17 +316,17 @@ void App_RunST8( APP_STATE* app_state )
     DISPLAY_DIG3_Segments( DISPLAY_CharToSegments(' '));
     if ( app_state->temp_mode == FAHRENHEIT )
     {
-        DISPLAY_DIG1_Segments( DISPLAY_CharToSegments('F'));
+        DISPLAY_DIG4_Segments( DISPLAY_CharToSegments('F'));
     }
     else
     {
-        DISPLAY_DIG1_Segments( DISPLAY_CharToSegments('C'));
+        DISPLAY_DIG4_Segments( DISPLAY_CharToSegments('C'));
     }
     DISPLAY_DP1_Off();
     DISPLAY_DP2_Off();
     DISPLAY_DP3_Off();
     DISPLAY_COLON_Off();
-    App_GotoState( app_state, ST9 );
+    App_GotoState( app_state, ST11 );
 }
 
 void App_RunST9( APP_STATE* app_state )
@@ -368,6 +373,17 @@ void App_RunST10( APP_STATE* app_state )
     }
     // TODO: save units to EEPROM
     App_GotoState( app_state, ST8 );
+}
+
+void App_RunST11( APP_STATE* app_state )
+{
+    // Wait for all buttons released
+    LED_SetHigh();
+    while ( CLC1_OutputStatusGet() || CLC1_OutputStatusGet() )
+    {
+        SLEEP();
+    }
+    App_GotoState( app_state, ST9 );
 }
 
 /**

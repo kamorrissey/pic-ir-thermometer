@@ -109,6 +109,12 @@ unsigned char DISPLAY_CharToSegments(unsigned char ch)
     case 'Y':
         return ( SEG_B_BIT | SEG_C_BIT | SEG_D_BIT | SEG_F_BIT | SEG_G_BIT );
         break;
+    case 'F':
+        return ( SEG_A_BIT | SEG_E_BIT | SEG_F_BIT | SEG_G_BIT );
+        break;
+    case 'C':
+        return ( SEG_A_BIT | SEG_D_BIT | SEG_E_BIT | SEG_F_BIT );
+        break;
     }        
 }
 

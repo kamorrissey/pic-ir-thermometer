@@ -56,8 +56,8 @@ void SYSTEM_Initialize(void)
     FVR_Initialize();
     CLC1_Initialize();
     ADCC_Initialize();
-    CLC2_Initialize();
     TMR4_Initialize();
+    CLC2_Initialize();
     TMR2_Initialize();
     TMR0_Initialize();
     LCD_Initialize();
