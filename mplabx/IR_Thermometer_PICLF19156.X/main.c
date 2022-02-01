@@ -43,6 +43,7 @@
 
 #include "mcc_generated_files/mcc.h"
 #include "display.h"
+#include "mlx90614.h"
 
 typedef enum sm_state {
     ST1, ST2, ST3, ST4, ST5,
@@ -173,13 +174,8 @@ float Get_SupplyVoltage(void)
 
 float Get_Temperature(void)
 {
-    static uint8_t count = 0;
-    static float temp[] = { 37.0f, 36.5f, 37.5f, };
-    if ( count >= 3 )
-    {
-        count = 0;
-    }
-    return temp[count++];
+    int32_t temp = MLX90614ReadObjectTemp();
+    return temp / 100.0f;
 }
 
 void App_Initialize(void)
