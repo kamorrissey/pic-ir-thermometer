@@ -18,7 +18,11 @@ extern "C" {
  * Read object temperature from MLX90614.
  * @returns Temperature in centiCelsius.
  */
-int32_t MLX90614ReadObjectTemp(void);
+int32_t MlxReadObjectTemp(void);
+
+void MlxSleep(void);
+
+void MlxWake(void);
 
 #ifdef	__cplusplus
 }

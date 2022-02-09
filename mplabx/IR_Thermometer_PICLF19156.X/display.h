@@ -51,6 +51,10 @@ void DISPLAY_BatteryLow(void);
 
 void DISPLAY_Ready(void);
 
+void DISPLAY_Low(void);
+
+void DISPLAY_High(void);
+
 #ifdef	__cplusplus
 }
 #endif

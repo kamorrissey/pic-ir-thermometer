@@ -41,20 +41,30 @@
     SOFTWARE.
 */
 
+#include <xc.h>
 #include "mcc_generated_files/mcc.h"
 #include "display.h"
 #include "mlx90614.h"
+
+#define DATAEE_BLOCK_BASE 0xF000
+#define LOW_VOLTAGE_THRESHOLD 2.65  // volts
+#define IDLE_TIMEOUT_TICKS 300      // secs * 10 ticks/sec
 
 typedef enum sm_state {
     ST1, ST2, ST3, ST4, ST5,
     ST6, ST7, ST8, ST9, ST10,
     ST11,
-} SM_STATE;
+} SM_STATE_ENUM;
 
 typedef enum temp_mode {
     FAHRENHEIT,
     CELSIUS,
-} TEMP_MODE;
+} TEMP_MODE_ENUM;
+
+typedef enum button {
+    BUTTON_1,
+    BUTTON_2,
+} BUTTON_ENUM;
 
 
 typedef struct dataee_block {
@@ -66,18 +76,19 @@ typedef struct app_state {
     uint8_t temp_exists;
     float temp_C;
     volatile int16_t ticks_remaining;
-    SM_STATE next_sm_state;
+    SM_STATE_ENUM next_sm_state;
 } APP_STATE;
 
-const uint16_t DATAEE_BLOCK_BASE = 0xF000;
-
-APP_STATE g_app_state;
+APP_STATE g_app_state; // global state information
 
 // forward references
 void App_Initialize(void);
-void App_GotoState( SM_STATE new_state );
+inline void App_GotoState( SM_STATE_ENUM new_state );
 void App_OnTimerClick(void);
 void App_DisplayTemp(void);
+inline bool App_ButtonPressed_1(void);
+inline bool App_ButtonPressed_2(void);
+inline void App_WaitButtonsReleased(void);
 void App_RunST1(void);
 void App_RunST2(void);
 void App_RunST3(void);
@@ -174,19 +185,20 @@ float Get_SupplyVoltage(void)
 
 float Get_Temperature(void)
 {
-    int32_t temp = MLX90614ReadObjectTemp();
+    int32_t temp = MlxReadObjectTemp();
     return temp / 100.0f;
 }
 
 void App_Initialize(void)
 {
     App_GotoState( ST1 );
+    g_app_state.dataee_block.temp_mode = FAHRENHEIT;
     DataEE_Load(&g_app_state.dataee_block);
     g_app_state.temp_exists = 0;
     g_app_state.temp_C = 0.0f;
 }
 
-void App_GotoState( SM_STATE sm_state )
+inline void App_GotoState( SM_STATE_ENUM sm_state )
 {
     TMR0_StopTimer();
     g_app_state.next_sm_state = sm_state;
@@ -222,6 +234,25 @@ void App_DisplayTemp(void)
     }
 }
 
+inline bool App_ButtonPressed_1(void)
+{
+    return CLC1_OutputStatusGet();
+}
+
+inline bool App_ButtonPressed_2(void)
+{
+    return CLC2_OutputStatusGet();
+}
+
+inline void App_WaitButtonsReleased(void)
+{
+    // Wait for all buttons released
+    while ( App_ButtonPressed_1() || App_ButtonPressed_2() )
+    {
+        SLEEP();
+    }
+}
+
 void App_RunST1(void)
 {
     // Display temperature or ready-indicator
@@ -232,28 +263,24 @@ void App_RunST1(void)
 
 void App_RunST2(void)
 {
-    // Wait for all buttons released
-    while ( CLC1_OutputStatusGet() || CLC2_OutputStatusGet() )
-    {
-        SLEEP();
-    }
+    App_WaitButtonsReleased();
     App_GotoState( ST3 );
 }
 
 void App_RunST3(void)
 {
     // Wait for button press or timeout
-    g_app_state.ticks_remaining = 300; // 30 secs * 10 ticks/sec
+    g_app_state.ticks_remaining = IDLE_TIMEOUT_TICKS;
     TMR0_Reload();
     TMR0_StartTimer();
     while (1)
     {
-        if ( CLC1_OutputStatusGet() )
+        if ( App_ButtonPressed_1() )
         {
             App_GotoState( ST4 );
             return;
         }
-        else if ( CLC2_OutputStatusGet() )
+        else if ( App_ButtonPressed_2() )
         {
             App_GotoState( ST8 );
             return;
@@ -274,7 +301,7 @@ void App_RunST4(void)
 {
     // Measure Vdd, compare to threshold
     float vdd = Get_SupplyVoltage();
-    if ( vdd < 2.65 )
+    if ( vdd < LOW_VOLTAGE_THRESHOLD )
     {
         App_GotoState( ST6 );
     }
@@ -302,10 +329,28 @@ void App_RunST6(void)
 
 void App_RunST7(void)
 {
-    // Clear display
+    App_WaitButtonsReleased();
+    // Clear display and put it to sleep
     DISPLAY_AllPixels_Off();
     LCD_Disable();
-    App_GotoState( ST3 );
+    MlxSleep();
+    // TODO: sleep CPU until button1/2 pressed
+    while (1)
+    {
+        if ( App_ButtonPressed_1() )
+        {
+            MlxWake();
+            App_GotoState( ST4 );
+            return;
+        }
+        else if ( App_ButtonPressed_2() )
+        {
+            MlxWake();
+            App_GotoState( ST8 );
+            return;
+        }
+        SLEEP();
+    }
 }
 
 void App_RunST8(void)
@@ -338,12 +383,12 @@ void App_RunST9(void)
     TMR0_StartTimer();
     while (1)
     {
-        if ( CLC1_OutputStatusGet() )
+        if ( App_ButtonPressed_1() )
         {
             App_GotoState( ST1 );
             return;
         }
-        else if ( CLC2_OutputStatusGet() )
+        else if ( App_ButtonPressed_2() )
         {
             App_GotoState( ST10 );
             return;
@@ -378,11 +423,7 @@ void App_RunST10(void)
 
 void App_RunST11(void)
 {
-    // Wait for all buttons released
-    while ( CLC1_OutputStatusGet() || CLC2_OutputStatusGet() )
-    {
-        SLEEP();
-    }
+    App_WaitButtonsReleased();
     App_GotoState( ST9 );
 }
 

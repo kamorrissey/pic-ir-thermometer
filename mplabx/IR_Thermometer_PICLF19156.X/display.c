@@ -360,13 +360,19 @@ void DISPLAY_DIG4_Segments(unsigned char segs)
 
 void DISPLAY_ShowNumber(int16_t value, int16_t decimal_places)
 {
-    if ( value < 0 || 9999 < value )
+    if ( value < 0 )
     {
+        DISPLAY_Low();
+        return;
+    }
+    if ( 9999 < value )
+    {
+        DISPLAY_High();
         return;
     }
     if ( decimal_places < 0 || 3 < decimal_places )
     {
-        return;
+        decimal_places = 0;
     }
     int16_t temp_val = value;
     uint8_t d4 = temp_val % 10;
@@ -450,6 +456,30 @@ void DISPLAY_Ready(void)
     DISPLAY_DIG1_Segments(DISPLAY_CharToSegments('r'));
     DISPLAY_DIG2_Segments(DISPLAY_CharToSegments('d'));
     DISPLAY_DIG3_Segments(DISPLAY_CharToSegments('Y'));
+    DISPLAY_DIG4_Segments(DISPLAY_CharToSegments(' '));
+    DISPLAY_DP1_Off();
+    DISPLAY_DP2_Off();
+    DISPLAY_DP3_Off();
+    DISPLAY_COLON_Off();
+}
+
+void DISPLAY_Low(void)
+{
+    DISPLAY_DIG1_Segments(DISPLAY_CharToSegments('L'));
+    DISPLAY_DIG2_Segments(DISPLAY_CharToSegments('o'));
+    DISPLAY_DIG3_Segments(DISPLAY_CharToSegments(' '));
+    DISPLAY_DIG4_Segments(DISPLAY_CharToSegments(' '));
+    DISPLAY_DP1_Off();
+    DISPLAY_DP2_Off();
+    DISPLAY_DP3_Off();
+    DISPLAY_COLON_Off();
+}
+
+void DISPLAY_High(void)
+{
+    DISPLAY_DIG1_Segments(DISPLAY_CharToSegments('H'));
+    DISPLAY_DIG2_Segments(DISPLAY_CharToSegments('i'));
+    DISPLAY_DIG3_Segments(DISPLAY_CharToSegments(' '));
     DISPLAY_DIG4_Segments(DISPLAY_CharToSegments(' '));
     DISPLAY_DP1_Off();
     DISPLAY_DP2_Off();
