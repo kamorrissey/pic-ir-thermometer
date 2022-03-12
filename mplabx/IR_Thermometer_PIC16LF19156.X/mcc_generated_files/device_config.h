@@ -1,5 +1,5 @@
 /**
-  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs Source File
+  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs Header File
 
   @Company:
     Microchip Technology Inc.
@@ -8,7 +8,7 @@
     mcc.c
 
   @Summary:
-    This is the mcc.c file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+    This is the device_config.h file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
   @Description:
     This header file provides implementations for driver APIs for all modules selected in the GUI.
@@ -44,60 +44,12 @@
     SOFTWARE.
 */
 
-#include "mcc.h"
+#ifndef DEVICE_CONFIG_H
+#define	DEVICE_CONFIG_H
 
+#define _XTAL_FREQ 1000000
 
-void SYSTEM_Initialize(void)
-{
-    PMD_Initialize();
-    I2C1_Initialize();
-    PIN_MANAGER_Initialize();
-    OSCILLATOR_Initialize();
-    FVR_Initialize();
-    CLC1_Initialize();
-    ADCC_Initialize();
-    TMR4_Initialize();
-    CLC2_Initialize();
-    TMR2_Initialize();
-    TMR0_Initialize();
-    LCD_Initialize();
-}
-
-void OSCILLATOR_Initialize(void)
-{
-    // NOSC HFINTOSC; NDIV 1; 
-    OSCCON1 = 0x60;
-    // CSWHOLD may proceed; SOSCPWR Low power; 
-    OSCCON3 = 0x00;
-    // MFOEN disabled; LFOEN disabled; ADOEN disabled; SOSCEN disabled; EXTOEN disabled; HFOEN disabled; 
-    OSCEN = 0x00;
-    // HFFRQ 4_MHz; 
-    OSCFRQ = 0x02;
-    // MFOR not ready; 
-    OSCSTAT = 0x00;
-    // TUN 0; 
-    OSCTUNE = 0x00;
-    // ACTUD enabled; ACTEN disabled; 
-    ACTCON = 0x00;
-}
-
-void PMD_Initialize(void)
-{
-    // SYSCMD SYSCLK enabled; ACTMD ACT enabled; FVRMD FVR enabled; IOCMD IOC enabled; NVMMD NVM enabled; 
-    PMD0 = 0x00;
-    // TMR0MD TMR0 enabled; TMR1MD TMR1 enabled; TMR4MD TMR4 enabled; TMR2MD TMR2 enabled; 
-    PMD1 = 0x00;
-    // ZCDMD ZCD enabled; DACMD DAC enabled; CMP1MD CMP1 enabled; ADCMD ADC enabled; CMP2MD CMP2 enabled; RTCCMD RTCC enabled; 
-    PMD2 = 0x00;
-    // CCP2MD CCP2 enabled; CCP1MD CCP1 enabled; CCP4MD PWM4 enabled; CCP3MD PWM3 enabled; 
-    PMD3 = 0x00;
-    // CWG1MD CWG1 enabled; UART2MD EUSART2 enabled; MSSP1MD MSSP1 enabled; UART1MD EUSART enabled; 
-    PMD4 = 0x00;
-    // CLC3MD CLC3 enabled; CLC4MD CLC4 enabled; SMT1MD SMT1 enabled; LCDMD LCD enabled; CLC1MD CLC1 enabled; CLC2MD CLC2 enabled; 
-    PMD5 = 0x00;
-}
-
-
+#endif	/* DEVICE_CONFIG_H */
 /**
  End of File
 */

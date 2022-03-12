@@ -47,7 +47,7 @@
 #include "mlx90614.h"
 
 #define DATAEE_BLOCK_BASE 0xF000
-#define LOW_VOLTAGE_THRESHOLD 2.65  // volts
+#define LOW_VOLTAGE_THRESHOLD 2650  // millivolts
 #define IDLE_TIMEOUT_TICKS 300      // secs * 10 ticks/sec
 
 typedef enum sm_state {
@@ -101,10 +101,14 @@ void App_RunST9(void);
 void App_RunST10(void);
 void App_RunST11(void);
 
-float Get_SupplyVoltage(void);
+int32_t Get_SupplyVoltage(void);
 float Get_Temperature(void);
 void DataEE_Load( DATAEE_BLOCK* buffer );
 void DataEE_Store( DATAEE_BLOCK* buffer );
+
+void PMD_UnusedDisable(void);
+void PMD_Sleep(void);
+void PMD_Wake(void);
 
 /*
                          Main application
@@ -174,12 +178,14 @@ void main(void)
     }
 }
 
-float Get_SupplyVoltage(void)
+// Returns estimate of Vdd in millivolts
+int32_t Get_SupplyVoltage(void)
 {
+    while (!FVR_IsOutputReady());
     ADCC_StartConversion(channel_FVR_Buffer1);
     while(!ADCC_IsConversionDone());
     uint16_t adc = ADCC_GetConversionResult();
-    float supply_voltage = (float)( 1.024 * 4096.0 / adc );
+    int32_t supply_voltage = ( 1024L * 4096L ) / adc;
     return supply_voltage;
 }
 
@@ -192,10 +198,12 @@ float Get_Temperature(void)
 void App_Initialize(void)
 {
     App_GotoState( ST1 );
-    g_app_state.dataee_block.temp_mode = FAHRENHEIT;
+    PMD_UnusedDisable();
     DataEE_Load(&g_app_state.dataee_block);
     g_app_state.temp_exists = 0;
     g_app_state.temp_C = 0.0f;
+    DISPLAY_AllPixels_On();
+    MlxWake();
 }
 
 inline void App_GotoState( SM_STATE_ENUM sm_state )
@@ -277,16 +285,19 @@ void App_RunST3(void)
     {
         if ( App_ButtonPressed_1() )
         {
+            TMR0_StopTimer();
             App_GotoState( ST4 );
             return;
         }
         else if ( App_ButtonPressed_2() )
         {
+            TMR0_StopTimer();
             App_GotoState( ST8 );
             return;
         }
         else if ( g_app_state.ticks_remaining == 0 )
         {
+            TMR0_StopTimer();
             App_GotoState( ST7 );
             return;
         }
@@ -299,8 +310,8 @@ void App_RunST3(void)
 
 void App_RunST4(void)
 {
-    // Measure Vdd, compare to threshold
-    float vdd = Get_SupplyVoltage();
+    // Measure Vdd in millivolts, compare to threshold
+    int32_t vdd = Get_SupplyVoltage();
     if ( vdd < LOW_VOLTAGE_THRESHOLD )
     {
         App_GotoState( ST6 );
@@ -334,17 +345,22 @@ void App_RunST7(void)
     DISPLAY_AllPixels_Off();
     LCD_Disable();
     MlxSleep();
-    // TODO: sleep CPU until button1/2 pressed
+    PMD_Sleep();
+    // sleep CPU until button1/2 pressed
     while (1)
     {
         if ( App_ButtonPressed_1() )
         {
+            PMD_Wake();
+            DISPLAY_AllPixels_On();
             MlxWake();
             App_GotoState( ST4 );
             return;
         }
         else if ( App_ButtonPressed_2() )
         {
+            PMD_Wake();
+            DISPLAY_AllPixels_On();
             MlxWake();
             App_GotoState( ST8 );
             return;
@@ -443,6 +459,54 @@ void DataEE_Store( DATAEE_BLOCK* buffer )
     {
         DATAEE_WriteByte( DATAEE_BLOCK_BASE + i, *src++ );
     }
+}
+
+void PMD_UnusedDisable(void)
+{
+    PMD0bits.ACTMD = 1;
+    // PMD0bits.FVRMD = 1;
+    PMD0bits.IOCMD = 1;
+    // PMD0bits.NVMMD = 1;
+    // PMD0bits.SYSCMD = 1;
+    
+    // PMD1bits.TMR0MD = 1;
+    // PMD1bits.TMR1MD = 1;
+    // PMD1bits.TMR2MD = 1;
+    // PMD1bits.TMR4MD = 1;
+
+    // PMD2bits.ADCMD = 1;
+    PMD2bits.CMP1MD = 1;
+    PMD2bits.CMP2MD = 1;
+    PMD2bits.DACMD = 1;
+    PMD2bits.RTCCMD = 1;
+    PMD2bits.ZCDMD = 1;
+    
+    PMD3bits.CCP1MD = 1;
+    PMD3bits.CCP2MD = 1;
+    PMD3bits.CCP3MD = 1; // PWM3
+    PMD3bits.CCP4MD = 1; // PWM4
+    
+    PMD4bits.CWG1MD = 1;
+    // PMD4bits.MSSP1MD = 1;
+    PMD4bits.UART1MD = 1;
+    PMD4bits.UART2MD = 1;
+    
+    // PMD5bits.CLC1MD = 1;
+    // PMD5bits.CLC2MD = 1;
+    // PMD5bits.CLC3MD = 1;
+    // PMD5bits.CLC4MD = 1;
+    // PMD5bits.LCDMD = 1;
+    // PMD5bits.SMT1MD = 1;
+}
+
+void PMD_Sleep(void)
+{
+    FVREN = 0;
+}
+
+void PMD_Wake(void)
+{
+    FVREN = 1;
 }
 
 /**

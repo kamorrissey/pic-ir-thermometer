@@ -5,8 +5,8 @@ $Descr USLetter 11000 8500
 encoding utf-8
 Sheet 1 1
 Title "Non-contact IR Thermometer"
-Date "2021-05-29"
-Rev "0.7"
+Date "2022-02-28"
+Rev "0.8"
 Comp "Karen A. Morrissey"
 Comment1 "A minimal part, low-power design for a non-contact IR thermometer."
 Comment2 ""
@@ -49,13 +49,11 @@ U 1 1 6044C720
 P 6350 3250
 F 0 "C1" H 6465 3296 50  0000 L CNN
 F 1 "100n" H 6465 3205 50  0000 L CNN
-F 2 "Capacitors:0603" H 6388 3100 50  0001 C CNN
+F 2 "Capacitor_THT:C_Disc_D3.0mm_W1.6mm_P2.50mm" H 6388 3100 50  0001 C CNN
 F 3 "~" H 6350 3250 50  0001 C CNN
 	1    6350 3250
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	2900 2850 2500 2850
 $Comp
 L Connector:Conn_01x06_Female J1
 U 1 1 60451E19
@@ -73,7 +71,7 @@ U 1 1 604560F8
 P 1450 3350
 F 0 "SW2" H 1450 3635 50  0000 C CNN
 F 1 "Option Button" H 1450 3544 50  0000 C CNN
-F 2 "FSM2JRT:FSM2JRT" H 1450 3550 50  0001 C CNN
+F 2 "Button_Switch_THT:SW_TH_Tactile_Omron_B3F-10xx" H 1450 3550 50  0001 C CNN
 F 3 "~" H 1450 3550 50  0001 C CNN
 	1    1450 3350
 	1    0    0    -1  
@@ -127,7 +125,7 @@ U 1 1 6064E3C8
 P 1450 2450
 F 0 "SW1" H 1450 2735 50  0000 C CNN
 F 1 "Sample Button" H 1450 2644 50  0000 C CNN
-F 2 "FSM2JRT:FSM2JRT" H 1450 2650 50  0001 C CNN
+F 2 "Button_Switch_THT:SW_TH_Tactile_Omron_B3F-10xx" H 1450 2650 50  0001 C CNN
 F 3 "~" H 1450 2650 50  0001 C CNN
 	1    1450 2450
 	1    0    0    -1  
@@ -202,12 +200,12 @@ Connection ~ 7650 3550
 $Comp
 L power:GND #PWR04
 U 1 1 6044CFCD
-P 2500 3050
-F 0 "#PWR04" H 2500 2800 50  0001 C CNN
-F 1 "GND" H 2505 2877 50  0000 C CNN
-F 2 "" H 2500 3050 50  0001 C CNN
-F 3 "" H 2500 3050 50  0001 C CNN
-	1    2500 3050
+P 2400 3050
+F 0 "#PWR04" H 2400 2800 50  0001 C CNN
+F 1 "GND" H 2405 2877 50  0000 C CNN
+F 2 "" H 2400 3050 50  0001 C CNN
+F 3 "" H 2400 3050 50  0001 C CNN
+	1    2400 3050
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -218,7 +216,7 @@ U 1 1 604CF147
 P 4850 5150
 F 0 "R1" H 4920 5196 50  0000 L CNN
 F 1 "4.7K" H 4920 5105 50  0000 L CNN
-F 2 "Resistors:0603" V 4780 5150 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 4780 5150 50  0001 C CNN
 F 3 "~" H 4850 5150 50  0001 C CNN
 	1    4850 5150
 	1    0    0    -1  
@@ -231,7 +229,7 @@ U 1 1 604CE9F3
 P 5650 5150
 F 0 "R2" H 5720 5196 50  0000 L CNN
 F 1 "4.7K" H 5720 5105 50  0000 L CNN
-F 2 "Resistors:0603" V 5580 5150 50  0001 C CNN
+F 2 "Resistor_SMD:R_0603_1608Metric" V 5580 5150 50  0001 C CNN
 F 3 "~" H 5650 5150 50  0001 C CNN
 	1    5650 5150
 	1    0    0    -1  
@@ -242,7 +240,7 @@ U 1 1 60763C18
 P 4050 6500
 F 0 "C2" H 4165 6546 50  0000 L CNN
 F 1 "100n" H 4165 6455 50  0000 L CNN
-F 2 "Capacitors:0603" H 4088 6350 50  0001 C CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric" H 4088 6350 50  0001 C CNN
 F 3 "~" H 4050 6500 50  0001 C CNN
 	1    4050 6500
 	1    0    0    -1  
@@ -346,17 +344,6 @@ F 1 "GND" H 2205 4177 50  0000 C CNN
 F 2 "" H 2200 4350 50  0001 C CNN
 F 3 "" H 2200 4350 50  0001 C CNN
 	1    2200 4350
-	1    0    0    -1  
-$EndComp
-$Comp
-L power:VDD #PWR08
-U 1 1 607F1EE9
-P 2550 4000
-F 0 "#PWR08" H 2550 3850 50  0001 C CNN
-F 1 "VDD" H 2565 4173 50  0000 C CNN
-F 2 "" H 2550 4000 50  0001 C CNN
-F 3 "" H 2550 4000 50  0001 C CNN
-	1    2550 4000
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -478,8 +465,6 @@ F 3 "~" H 8150 3150 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Connection ~ 8150 3150
-Wire Wire Line
-	2550 4000 2550 4350
 Wire Notes Line
 	2250 4700 5950 4700
 Wire Notes Line
@@ -502,7 +487,7 @@ U 1 1 6083CFA8
 P 1850 2100
 F 0 "R4" H 1920 2146 50  0000 L CNN
 F 1 "10K" H 1920 2055 50  0000 L CNN
-F 2 "Resistors:0603" V 1780 2100 50  0001 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 1780 2100 50  0001 C CNN
 F 3 "~" H 1850 2100 50  0001 C CNN
 	1    1850 2100
 	1    0    0    -1  
@@ -513,7 +498,7 @@ U 1 1 6083DA43
 P 1750 2950
 F 0 "R3" H 1820 2996 50  0000 L CNN
 F 1 "10K" H 1820 2905 50  0000 L CNN
-F 2 "Resistors:0603" V 1680 2950 50  0001 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 1680 2950 50  0001 C CNN
 F 3 "~" H 1750 2950 50  0001 C CNN
 	1    1750 2950
 	1    0    0    -1  
@@ -580,7 +565,6 @@ Wire Wire Line
 NoConn ~ 5300 2550
 NoConn ~ 5300 2650
 NoConn ~ 5300 3150
-NoConn ~ 5300 3250
 Wire Notes Line
 	800  600  800  4600
 Wire Notes Line
@@ -591,8 +575,6 @@ NoConn ~ 5300 3350
 Wire Wire Line
 	1850 2450 2000 2450
 Connection ~ 1850 2450
-Wire Wire Line
-	2500 2850 2500 3050
 Text Label 2900 2750 2    50   ~ 0
 SW1
 Text Label 2900 3150 2    50   ~ 0
@@ -609,7 +591,7 @@ U 1 1 60B47D41
 P 1900 3700
 F 0 "D1" H 1893 3917 50  0000 C CNN
 F 1 "3V LED" H 1893 3826 50  0000 C CNN
-F 2 "" H 1900 3700 50  0001 C CNN
+F 2 "LED_THT:LED_D3.0mm" H 1900 3700 50  0001 C CNN
 F 3 "~" H 1900 3700 50  0001 C CNN
 	1    1900 3700
 	1    0    0    -1  
@@ -627,8 +609,6 @@ F 3 "" H 1650 4000 50  0001 C CNN
 $EndComp
 Text Label 2050 3700 0    50   ~ 0
 LED
-Text Label 2900 3250 2    50   ~ 0
-LED
 Text Notes 7350 3850 0    50   ~ 0
 PMOSFET provides\nreverse battery\nprotection
 $Comp
@@ -636,7 +616,7 @@ L Device:R R5
 U 1 1 60B894B7
 P 1650 3850
 F 0 "R5" H 1720 3896 50  0000 L CNN
-F 1 "100R" H 1720 3805 50  0000 L CNN
+F 1 "220R" H 1720 3805 50  0000 L CNN
 F 2 "Resistors:0603" V 1580 3850 50  0001 C CNN
 F 3 "~" H 1650 3850 50  0001 C CNN
 	1    1650 3850
@@ -644,4 +624,27 @@ F 3 "~" H 1650 3850 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	1750 3700 1650 3700
+Text Label 5300 3250 0    50   ~ 0
+LED
+Wire Wire Line
+	2400 2850 2400 3050
+Wire Wire Line
+	2400 2850 2900 2850
+$Comp
+L Device:R R6
+U 1 1 621E9958
+P 2550 3900
+F 0 "R6" H 2620 3946 50  0000 L CNN
+F 1 "100R" H 2620 3855 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 2480 3900 50  0001 C CNN
+F 3 "~" H 2550 3900 50  0001 C CNN
+	1    2550 3900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	2550 4350 2550 4050
+Wire Wire Line
+	2900 3250 2550 3250
+Wire Wire Line
+	2550 3250 2550 3750
 $EndSCHEMATC
